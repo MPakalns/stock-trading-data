@@ -113,6 +113,30 @@ bool isYYYY_DD_MM(string str)
     return false;
 }
 
+// Function to calculate relative strength index
+vector<double> calculateRSI(vector<double> closingPrices)
+{
+    vector<double> listOfRSIs;
+    double gains = 0.0; double losses - 0.0;
+    int gainsDays = 0; int lossesDays = 0;
+    for (int i = 1; i < closingPrices.length(); i++)
+    {
+        double value = closingPrices[i] - closingPrices[i-1];
+        if (value > 0) { gains += value; gainsDays++; }
+        else if (value < 0) {losses -= value; lossesDays++;}
+
+        // Average gains and losses per 14 day period
+        if (i % 14 == 0)
+        {
+            double gainsAverage = gains / gainsDays;
+            double lossesAverage = losses / lossesDays;
+            double relativeStregth = gainsAverage / lossesAverage;
+            double rsi = 100 - (100 / (1 + relativeStrength));
+            listOfRSIs.push_back(rsi);
+        }
+    }
+}
+
 int main()
 {
     // User input
@@ -152,6 +176,8 @@ int main()
     vector<double> lowestPrices;
     vector<double> closingPrices;
 
+    vector<double> RSIsper14 = calculateRSI(closingPrices)
+    vector<double> RSIsAll;
     // Fill the plot file with data
     for (const auto& row : data)
     {
@@ -161,12 +187,14 @@ int main()
         lowestPrices.push_back(stod(row[LOWEST_PRICE]));
         closingPrices.push_back(stod(row[CLOSING_PRICE]));
 
+        RSIsAll.push_back(RSIsper14[i % 14])
+
         dayCounter++;
     }
 
     // Write the data to the output file
     string filenameOut = "plot_data.txt";
-    writeDataToFile(filenameOut, days, openingPrices, highestPrices, lowestPrices, closingPrices);
+    writeDataToFile(filenameOut, days, openingPrices, highestPrices, lowestPrices, closingPrices, RSIsAll);
 
     return 0;
 }
