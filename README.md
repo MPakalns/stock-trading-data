@@ -9,7 +9,7 @@ Compile "main.cpp"
 
 ## Usage
 
-Run "plot.py" (must have matplotlib installed; if not, run `pip install matplotlib')
+Run "plot.py" (must have matplotlib installed; if not, run `pip install matplotlib`)
 
 ## Contributing
 
