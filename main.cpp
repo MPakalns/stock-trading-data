@@ -3,6 +3,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <cassert>
 
 using namespace std;
 
@@ -75,7 +76,7 @@ vector<vector<string>> readCSVbyDate(string filename, string dateFrom, string da
 }
 
 // Function to write data to a text file
-void writeDataToFile(string filename, vector<int> days, vector<double> openingPrices, vector<double> highestPrices, vector<double> lowestPrices, vector<double> closingPrices)
+void writeDataToFile(string filename, vector<int> days, vector<double> openingPrices, vector<double> highestPrices, vector<double> lowestPrices, vector<double> closingPrices, vector<double> allRSIs)
 {
     ofstream file(filename);
 
@@ -87,12 +88,13 @@ void writeDataToFile(string filename, vector<int> days, vector<double> openingPr
 
     for (size_t i = 0; i < days.size(); i++)
     {
-        file << days[i] << "," << openingPrices[i] << "," << highestPrices[i] << "," << lowestPrices[i] << "," << closingPrices[i] << "\n";
+        file << days[i] << "," << openingPrices[i] << "," << highestPrices[i] << "," << lowestPrices[i] << "," << closingPrices[i] << "," << allRSIs[i] << "\n";
     }
 
     file.close();
 }
 
+// Function to check if value is made up of only digits
 bool isDigits(string str)
 {
     for (int i = 0; i < str.length(); i++)
@@ -103,6 +105,7 @@ bool isDigits(string str)
     return true;
 }
 
+// Function to check specific date format
 bool isYYYY_DD_MM(string str)
 {
     if (isDigits(str.substr(0, 4)) && str.substr(4, 1) == "-" && isDigits(str.substr(5, 2)) && str.substr(7, 1) == "-" && isDigits(str.substr(8, 2)))
@@ -113,33 +116,39 @@ bool isYYYY_DD_MM(string str)
     return false;
 }
 
-// Function to calculate relative strength index
+// Function to calculate relative strength index - RSI
 vector<double> calculateRSI(vector<double> closingPrices)
 {
     vector<double> listOfRSIs;
-    double gains = 0.0; double losses - 0.0;
+    double gains = 0.0; double losses = 0.0;
     int gainsDays = 0; int lossesDays = 0;
-    for (int i = 1; i < closingPrices.length(); i++)
+    for (int i = 1; i < closingPrices.size(); i++)
     {
-        double value = closingPrices[i] - closingPrices[i-1];
+        double value = closingPrices[i] - closingPrices[i - 1];
         if (value > 0) { gains += value; gainsDays++; }
-        else if (value < 0) {losses -= value; lossesDays++;}
+        else if (value < 0) { losses -= value; lossesDays++; }
 
         // Average gains and losses per 14 day period
         if (i % 14 == 0)
         {
             double gainsAverage = gains / gainsDays;
             double lossesAverage = losses / lossesDays;
-            double relativeStregth = gainsAverage / lossesAverage;
+            double relativeStrength = gainsAverage / lossesAverage;
             double rsi = 100 - (100 / (1 + relativeStrength));
             listOfRSIs.push_back(rsi);
+            gains = 0.0;
+            losses = 0.0;
+            gainsDays = 0;
+            lossesDays = 0;
         }
     }
+
+    return listOfRSIs;
 }
 
 int main()
 {
-    // User input
+    // User input and validation
     string userInput;
     bool correctInput = false;
     string date1, date2;
@@ -176,8 +185,6 @@ int main()
     vector<double> lowestPrices;
     vector<double> closingPrices;
 
-    vector<double> RSIsper14 = calculateRSI(closingPrices)
-    vector<double> RSIsAll;
     // Fill the plot file with data
     for (const auto& row : data)
     {
@@ -187,10 +194,33 @@ int main()
         lowestPrices.push_back(stod(row[LOWEST_PRICE]));
         closingPrices.push_back(stod(row[CLOSING_PRICE]));
 
-        RSIsAll.push_back(RSIsper14[i % 14])
-
         dayCounter++;
     }
+
+    // Ensure all vectors are the same length
+    assert(days.size() == openingPrices.size());
+    assert(days.size() == highestPrices.size());
+    assert(days.size() == lowestPrices.size());
+    assert(days.size() == closingPrices.size());
+
+    vector<double> RSIsper14 = calculateRSI(closingPrices);
+    vector<double> RSIsAll(days.size(), 0); // Initialize with zeros
+
+    // Populate RSI values at correct intervals
+    for (int i = 0; i < RSIsper14.size(); i++) 
+    {
+        int index = (i + 1) * 14 - 1;
+        if (index < RSIsAll.size()) {
+            RSIsAll[index] = RSIsper14[i];
+        }
+        else 
+        {
+            cout << "Warning: Index " << index << " out of range for RSIsAll." << endl;
+        }
+    }
+
+    // Ensure RSIsAll is the same length as the other vectors
+    assert(days.size() == RSIsAll.size());
 
     // Write the data to the output file
     string filenameOut = "plot_data.txt";
@@ -198,4 +228,3 @@ int main()
 
     return 0;
 }
-
