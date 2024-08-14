@@ -4,11 +4,11 @@ You can look at a given stock's historical data (in a specified period) visualiz
 
 ## Installation
 
-Compile "main.cpp"
+Compile "main.cpp".
 
 ## Usage
 
-Run "plot.py" (must have matplotlib installed; if not, run `pip install matplotlib`)
+Run "plot.py" (must have matplotlib installed; if not, run `pip install matplotlib`).
 
 ## Contributing
 
