@@ -1,7 +1,6 @@
-# Stock trading bot
+# Stock trading data
 
-As of right now this project's functions are: looking at a given stock's historical data (in a given period) visualized. The data
-is: opening prices, high prices, low pirces, closing prices and RSIs (relative strength indexes).
+You can look at a given stock's historical data (in a specified period) visualized. The data is: opening prices, high prices, low prices, closing prices and RSIs (relative strength indexes).
 
 ## Installation
 
